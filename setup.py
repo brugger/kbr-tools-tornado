@@ -39,7 +39,7 @@ def scripts(directory='bin/*') -> []:
 
 
 setup(name='kbr.tornado',
-      version= "NA",
+      version= get_version(),
       description='python utils and tools collection',
       url='https://github.com/brugger/kbr-tools/',
       author='Kim Brugger',
