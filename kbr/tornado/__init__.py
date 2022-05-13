@@ -16,6 +16,8 @@ import pprint as pp
 
 token = None
 
+environment = 'production'
+
 
 # bespoke decoder to handle UUID and timestamps
 class UUIDEncoder(json.JSONEncoder):
@@ -143,7 +145,8 @@ class BaseHandler( RequestHandler ):
          self.set_header("Content-Type", 'application/json; charset="utf-8"')
 
     def allow_options(self):
-        self.set_ACAO_header()
+        if environment == 'development':
+            self.set_ACAO_header()
         self.set_status(204)
         self.finish()
 
@@ -156,6 +159,10 @@ class BaseHandler( RequestHandler ):
             self.set_auth_token( token )
 
         self.set_status(status)
+
+        if environment == 'development':
+            self.set_ACAO_header()
+
         # check if the data is already in valid json format, otherwise make it
         try:
             json_object = json.loads( data )
@@ -326,3 +333,6 @@ def run_app(urls, port=8888, **kwargs):
 
 
 
+def development():
+    global environment 
+    environment = 'development'
