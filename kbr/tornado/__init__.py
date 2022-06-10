@@ -83,7 +83,7 @@ class BaseHandler( RequestHandler ):
 
         return values
 
-    def valid_arguments(self, values:dict, valid:list) -> {}:
+    def valid_arguments(self, values:dict, valid:list) -> dict:
 
 
         for key in values:
@@ -92,7 +92,7 @@ class BaseHandler( RequestHandler ):
 
         return values
 
-    def require_arguments(self, values:dict, required:list) -> {}:
+    def require_arguments(self, values:dict, required:list) -> dict:
         self.valid_arguments( values, required )
 
         for key in required:
@@ -271,7 +271,7 @@ class BaseHandler( RequestHandler ):
 
 
 
-    def check_token(self, tokens:[]=None):
+    def check_token(self, tokens:list=None):
         global token
         header_token = None
         auth_header = self.request.headers.get('Authorization', None)
