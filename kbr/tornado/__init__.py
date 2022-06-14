@@ -320,6 +320,14 @@ def url_unescape(uri:str) -> str:
     
     return tornado.escape.url_unescape( uri )
 
+
+def url_escape(uri:str, plus=True) -> str:
+    if uri is None:
+        return uri
+    
+    return tornado.escape.url_escape( uri, plus )
+
+
 def set_token(new_token:str):
     global token
     token = new_token
