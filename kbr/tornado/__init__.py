@@ -284,7 +284,7 @@ class BaseHandler( RequestHandler ):
 
 
 
-    def check_token(self, tokens:[]=None):
+    def check_token(self, tokens:list=None):
         global token
         header_token = None
         auth_header = self.request.headers.get('Authorization', None)
