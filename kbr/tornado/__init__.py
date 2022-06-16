@@ -15,8 +15,13 @@ import kbr.log_utils as logger
 import pprint as pp
 
 token = None
+token_cache = {}
 
 environment = 'production'
+
+#reference to user provided function for introspecion and getting acls
+introspection_func = None
+user_acls_func = None
 
 
 # bespoke decoder to handle UUID and timestamps
@@ -307,6 +312,34 @@ class BaseHandler( RequestHandler ):
             self.send_response_401( )
 
         return token
+
+
+    def valid_token(self) -> bool:
+
+        access_token = self.access_token()
+
+        token_data = introspection_func( access_token )
+        if 'active' not in token_data or token_data['active'] is not True:
+            self.send_response_401( data="Token not active" )
+
+        return token_data
+
+
+
+    def acls( self ) -> {}:
+
+        token = self.access_token()
+
+
+        if token not in token_cache:
+            token_data = self.valid_token(  )
+            if 'active' not in token_data or token_data['active'] is not True:
+                self.send_response_401( data="Token not active" )
+
+            user_id = token_data[ 'data' ]['user_id']
+            token_cache[ token ] = user_acls_func( user_id )
+
+        return token_cache[ token ]
 
 
 
