@@ -16,6 +16,8 @@ import pprint as pp
 
 token = None
 
+environment = 'production'
+
 
 # bespoke decoder to handle UUID and timestamps
 class UUIDEncoder(json.JSONEncoder):
@@ -93,7 +95,7 @@ class BaseHandler( RequestHandler ):
         return values
 
     def require_arguments(self, values:dict, required:list) -> dict:
-        self.valid_arguments( values, required )
+#        self.valid_arguments( values, required )
 
         for key in required:
             if key not in values:
@@ -134,22 +136,33 @@ class BaseHandler( RequestHandler ):
 
     def set_ACAO_header(self, sites="*"):
         self.set_header("Access-Control-Allow-Origin", sites)
-        self.set_header("Access-Control-Allow-Headers", "x-requested-with")
-        self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
+        self.set_header("Access-Control-Allow-Headers", "x-requested-with, content-type")
+        self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS, PATCH, DELETE')
 
 
     def set_json_header(self):
          """Set the default response header to be JSON."""
          self.set_header("Content-Type", 'application/json; charset="utf-8"')
 
+    def allow_options(self):
+        if environment == 'development':
+            self.set_ACAO_header()
+        self.set_status(204)
+        self.finish()
+
+
     # Success
     def send_response(self, data=None, status=200):
         """Construct and send a JSON response with appropriate status code."""
 
         if token is not None:
-            self.set_auth_token( token)
+            self.set_auth_token( token )
 
         self.set_status(status)
+
+        if environment == 'development':
+            self.set_ACAO_header()
+
         # check if the data is already in valid json format, otherwise make it
         try:
             json_object = json.loads( data )
@@ -328,3 +341,6 @@ def run_app(urls, port=8888, **kwargs):
 
 
 
+def development():
+    global environment 
+    environment = 'development'
