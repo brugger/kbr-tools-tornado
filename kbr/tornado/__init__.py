@@ -136,7 +136,9 @@ class BaseHandler( RequestHandler ):
 
     def set_ACAO_header(self, sites="*"):
         self.set_header("Access-Control-Allow-Origin", sites)
-        self.set_header("Access-Control-Allow-Headers", "x-requested-with, content-type")
+        self.set_header("Access-Control-Allow-Headers", "x-requested-with, content-type,authorization")
+#        self.set_header("Access-Control-Allow-Headers", "*")
+
         self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS, PATCH, DELETE')
 
 
