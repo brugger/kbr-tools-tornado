@@ -15,8 +15,13 @@ import kbr.log_utils as logger
 import pprint as pp
 
 token = None
+token_cache = {}
 
 environment = 'production'
+
+#reference to user provided function for introspecion and getting acls
+introspection_func = None
+userprofile_func = None
 
 
 # bespoke decoder to handle UUID and timestamps
@@ -38,14 +43,20 @@ class UUIDEncoder(json.JSONEncoder):
 class BaseHandler( RequestHandler ):
 
     def _can(self, endpoint:str, method:str) -> bool:
-        acls = self.acls(  )
-#        print( acls )
+        if environment == 'developments':
+            return True
+
+        userprofile = self.userProfile()
+
+        if userprofile.get('superuser', False):
+            return True
+
+        acls = userprofile['acls']
 
         if endpoint in acls and acls[ endpoint ] and method in acls[ endpoint ]:
             return acls[ endpoint ][ method ]
 
-        self.send_response_403("cannot {}".format( method ))
-        return False
+        self.send_response_403(f"No access to {method} on {endpoint}")
 
     def canCreate(self, endpoint:str) -> bool:
         return self._can( endpoint, 'can_create')
@@ -58,8 +69,6 @@ class BaseHandler( RequestHandler ):
 
     def canDelete(self, endpoint:str) -> bool:
         return self._can( endpoint, 'can_delete')
-
-
 
     def remote_ip(self):
         x_real_ip = self.request.headers.get("X-Real-IP")
@@ -135,6 +144,7 @@ class BaseHandler( RequestHandler ):
 
 
     def set_ACAO_header(self, sites="*"):
+#        print('setting ACAO headers')
         self.set_header("Access-Control-Allow-Origin", sites)
         self.set_header("Access-Control-Allow-Headers", "x-requested-with, content-type,authorization")
 #        self.set_header("Access-Control-Allow-Headers", "*")
@@ -145,6 +155,7 @@ class BaseHandler( RequestHandler ):
     def set_json_header(self):
          """Set the default response header to be JSON."""
          self.set_header("Content-Type", 'application/json; charset="utf-8"')
+
 
     def allow_options(self):
         if environment == 'development':
@@ -311,6 +322,32 @@ class BaseHandler( RequestHandler ):
         return token
 
 
+    def valid_token(self) -> bool:
+
+        access_token = self.access_token()
+
+        token_data = introspection_func( access_token )
+        if 'active' not in token_data or token_data['active'] is not True:
+            self.send_response_401( data="Token not active" )
+
+        return token_data
+
+
+    def userProfile( self ) -> dict:
+
+        token = self.access_token()
+
+        if token not in token_cache:
+            token_data = self.valid_token(  )
+            if 'active' not in token_data or token_data['active'] is not True:
+                self.send_response_401( data="Token not active" )
+
+            user_id = token_data[ 'data' ]['user_id']
+            token_cache[ token ] = userprofile_func( user_id )
+
+        return token_cache[ token ]
+
+
 
 def json_decode(value):
 
@@ -327,7 +364,7 @@ def url_escape(uri:str, plus=True) -> str:
     if uri is None:
         return uri
     
-    return tornado.escape.url_escape( uri, plus )
+    return tornado.escape.url_escape( uri, plus=plus )
 
 
 def set_token(new_token:str):
