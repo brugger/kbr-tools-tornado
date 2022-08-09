@@ -43,7 +43,11 @@ class UUIDEncoder(json.JSONEncoder):
 class BaseHandler( RequestHandler ):
 
     def _can(self, endpoint:str, method:str) -> bool:
-        acls = self.acls(  )
+        userprofile = self.userprofile()
+        if userprofile.get('superuser', False):
+            return True
+
+        acls = userprofile.get('acls', {})
 #        print( acls )
 
         if endpoint in acls and acls[ endpoint ] and method in acls[ endpoint ]:
@@ -326,7 +330,8 @@ class BaseHandler( RequestHandler ):
 
 
 
-    def acls( self ) -> {}:
+
+    def userprofile( self ) -> {}:
 
         token = self.access_token()
 
@@ -337,7 +342,7 @@ class BaseHandler( RequestHandler ):
                 self.send_response_401( data="Token not active" )
 
             user_id = token_data[ 'data' ]['user_id']
-            token_cache[ token ] = user_acls_func( user_id )
+            token_cache[ token ] = userprofile_func( user_id )
 
         return token_cache[ token ]
 
