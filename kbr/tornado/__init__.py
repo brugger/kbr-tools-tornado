@@ -333,9 +333,12 @@ class BaseHandler( RequestHandler ):
         return token_data
 
 
-    def userProfile( self ) -> dict:
+
+
+    def userprofile( self ) -> dict:
 
         token = self.access_token()
+
 
         if token not in token_cache:
             token_data = self.valid_token(  )
