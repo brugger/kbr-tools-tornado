@@ -1,5 +1,6 @@
 import json
 import tornado
+import urllib
 
 from tornado.ioloop import IOLoop
 from tornado.web import Application
@@ -191,19 +192,22 @@ class BaseHandler( RequestHandler ):
         self.set_status(status)
         return self.finish( )
 
-    def send_file(handler: RequestHandler, file_name: str, file_path: str) -> None:
+    def send_file(self, file_name: str, file_path: str) -> None:
+        if environment == 'development':
+            self.set_ACAO_header()
+
         buf_size = 4096
-        handler.set_header('Content-Type', 'application/octet-stream; charset=utf-8')
-        handler.set_header('Content-Disposition',
+        self.set_header('Content-Type', 'application/octet-stream; charset=utf-8')
+        self.set_header('Content-Disposition',
                        "attachment; filename*=utf-8''{}".format(urllib.parse.quote(file_name, 'utf-8')))
         with open(file_path, 'rb') as f:
             while True:
                 data = f.read(buf_size)
                 if not data:
                     break
-                handler.write(data)
+                self.write(data)
 
-        handler.finish()
+        self.finish()
 
 
     # Success
