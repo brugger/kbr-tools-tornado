@@ -200,6 +200,8 @@ class BaseHandler( RequestHandler ):
         self.set_header('Content-Type', 'application/octet-stream; charset=utf-8')
         self.set_header('Content-Disposition',
                        "attachment; filename*=utf-8''{}".format(urllib.parse.quote(file_name, 'utf-8')))
+        self.set_header("Access-Control-Expose-Headers", "Content-Disposition")
+
         with open(file_path, 'rb') as f:
             while True:
                 data = f.read(buf_size)
