@@ -341,7 +341,7 @@ class BaseHandler( RequestHandler ):
 
 
 
-    def userprofile( self ) -> dict:
+    def userProfile( self ) -> dict:
 
         token = self.access_token()
 
