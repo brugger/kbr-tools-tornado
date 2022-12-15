@@ -44,3 +44,7 @@ class DB(db.DB):
 
 
 
+    def user_profile_update_login_date(self, id:str) -> dict:
+        q = f"update user_profile set last_login=now() where id = '{id}'"
+        self._db.do(q)
+

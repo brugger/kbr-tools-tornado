@@ -38,5 +38,13 @@ CREATE TABLE IF NOT EXISTS acl_role (
 );
 
 
-INSERT INTO user_profile (idp_user_id, email, username, superuser ) values 
-('7866cb79debf4345b4a8c7c12de2b7c1',	'kim.brugger@gmail.com',	'Kim Brugger',	'true');
+INSERT INTO role (name ) values ('admin');
+INSERT INTO acl (endpoint, can_create, can_read, can_update, can_delete) values 
+        ('/admin/acl', True, True, True, True);
+        
+INSERT INTO acl_role (acl_id, role_id) VALUES
+    ( (SELECT id from acl WHERE endpoint='/admin/acl' ), (SELECT id from role WHERE name='admin' ));
+
+
+#INSERT INTO user_profile (idp_user_id, email, username, superuser ) values 
+#('7866cb79debf4345b4a8c7c12de2b7c1',	'kim.brugger@gmail.com',	'Kim Brugger',	'true');

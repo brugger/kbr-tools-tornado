@@ -43,7 +43,8 @@ tornado.introspection_func = introspection
 class UserHandler( tornado.BaseHandler ):
 
     def get(self):
-        print('getting user')
+#        print('getting user')
+        # access control is done by the access token in this case!
         access_token = self.access_token()
         print( access_token)
         token_data = introspection( access_token )
@@ -60,8 +61,7 @@ class UserHandler( tornado.BaseHandler ):
         user_info = user_info[0]
 
         user_info[ 'acls'] = db.user_acls( user_info['id'] )
-        import pprint as pp
-        pp.pprint( user_info )
+        db.user_profile_update_login_date(user_info['id'])
         self.send_response(data=user_info)
 
 
@@ -73,9 +73,11 @@ class UserHandler( tornado.BaseHandler ):
 class UserProfileDetailHandler ( tornado.BaseHandler ):
 
     def endpoint(self):
-        return("/user_profile/[id]")
+        return("/admin/acl")
 
     def get(self, id:str):
+        self.canRead(self.endpoint())
+
         user_profile  = db.user_profile(id=id)
         if user_profile is None:
             self.send_response_404()
@@ -83,6 +85,7 @@ class UserProfileDetailHandler ( tornado.BaseHandler ):
         return self.send_response( data=user_profile)
 
     def patch(self, id:str):
+        self.canUpdate(self.endpoint())
         user_profile = db.user_profile(id=id)
         if user_profile is None:
             self.send_response_404()
@@ -96,6 +99,7 @@ class UserProfileDetailHandler ( tornado.BaseHandler ):
         return self.send_response_200( )
 
     def delete(self, id:str):
+        self.canDelete(self.endpoint())
         try:
             db.user_profile_delete( id=id )
             return self.send_response_200()
@@ -108,9 +112,11 @@ class UserProfileDetailHandler ( tornado.BaseHandler ):
 
 class UserProfilesListHandler( tornado.BaseHandler):
     def endpoint(self):
-        return "/user_profiles/"
+        return("/admin/acl")
+#        return "/admin/user_profiles/"
 
     def post(self):
+        self.canCreate(self.endpoint())
         values = self.post_values()
         # check and change here
         self.require_arguments(values, ['idp_user_id', 'superuser'])
@@ -126,6 +132,7 @@ class UserProfilesListHandler( tornado.BaseHandler):
         self.allow_options()
 
     def get(self):
+        self.canRead(self.endpoint())
         filter = self.arguments()
         # check and change here
         self.valid_arguments(filter, ['id', 'idp_user_id', 'email', 'username', 'superuser', 'create_date', 'last_login'])
@@ -139,9 +146,11 @@ class UserProfilesListHandler( tornado.BaseHandler):
 class UserRoleDetailHandler ( tornado.BaseHandler ):
 
     def endpoint(self):
-        return("/user_role/[id]")
+        return("/admin/acl")
+#        return("/admin/user_role/[id]")
 
     def get(self, id:str):
+        self.canRead(self.endpoint())
         user_role  = db.user_role(id=id)
         if user_role is None:
             self.send_response_404()
@@ -149,6 +158,7 @@ class UserRoleDetailHandler ( tornado.BaseHandler ):
         return self.send_response( data=user_role)
 
     def patch(self, id:str):
+        self.canUpdate(self.endpoint())
         user_role = db.user_role(id=id)
         if user_role is None:
             self.send_response_404()
@@ -162,6 +172,7 @@ class UserRoleDetailHandler ( tornado.BaseHandler ):
         return self.send_response_200( )
 
     def delete(self, id:str):
+        self.canDelete(self.endpoint())
         try:
             db.user_role_delete( id=id )
             return self.send_response_200()
@@ -174,9 +185,11 @@ class UserRoleDetailHandler ( tornado.BaseHandler ):
 
 class UserRolesListHandler( tornado.BaseHandler):
     def endpoint(self):
-        return "/user_roles/"
+        return("/admin/acl")
+#        return "/admin/user_roles/"
 
     def post(self):
+        self.canCreate(self.endpoint())
         values = self.post_values()
         print( values)
 
@@ -203,6 +216,7 @@ class UserRolesListHandler( tornado.BaseHandler):
         self.allow_options()
 
     def get(self):
+        self.canRead(self.endpoint())
         filter = self.arguments()
 
         # check and change here
@@ -211,6 +225,7 @@ class UserRolesListHandler( tornado.BaseHandler):
 
 
     def delete(self, user_role_id:str):
+        self.canDelete(self.endpoint())
         try:
             db.user_role_delete_by_user_id( id=user_role_id )
             return self.send_response_200()
@@ -222,9 +237,11 @@ class UserRolesListHandler( tornado.BaseHandler):
 class RoleDetailHandler ( tornado.BaseHandler ):
 
     def endpoint(self):
-        return("/role/[id]")
+        return("/admin/acl")
+#        return("/admin/role/[id]")
 
     def get(self, id:str):
+        self.canRead(self.endpoint())
         role  = db.role(id=id)
         if role is None:
             self.send_response_404()
@@ -232,6 +249,7 @@ class RoleDetailHandler ( tornado.BaseHandler ):
         return self.send_response( data=role)
 
     def patch(self, id:str):
+        self.canUpdate(self.endpoint())
         role = db.role(id=id)
         if role is None:
             self.send_response_404()
@@ -245,6 +263,7 @@ class RoleDetailHandler ( tornado.BaseHandler ):
         return self.send_response_200( )
 
     def delete(self, id:str):
+        self.canDelete(self.endpoint())
         try:
             db.role_delete( id=id )
             return self.send_response_200()
@@ -257,9 +276,11 @@ class RoleDetailHandler ( tornado.BaseHandler ):
 
 class RolesListHandler( tornado.BaseHandler):
     def endpoint(self):
-        return "/roles/"
+        return("/admin/acl")
+#        return "/admin/roles/"
 
     def post(self):
+        self.canCreate(self.endpoint())
         values = self.post_values()
         # check and change here
         self.require_arguments(values, ['name'])
@@ -275,6 +296,7 @@ class RolesListHandler( tornado.BaseHandler):
         self.allow_options()
 
     def get(self):
+        self.canRead(self.endpoint())
         filter = self.arguments()
         # check and change here
         self.valid_arguments(filter, ['id', 'name'])
@@ -289,9 +311,11 @@ class RolesListHandler( tornado.BaseHandler):
 class AclDetailHandler ( tornado.BaseHandler ):
 
     def endpoint(self):
-        return("/acl/[id]")
+        return("/admin/acl")
+#        return("/admin/acl/[id]")
 
     def get(self, id:str):
+        self.canRead(self.endpoint())
         acl  = db.acl(id=id)
         if acl is None:
             self.send_response_404()
@@ -299,6 +323,7 @@ class AclDetailHandler ( tornado.BaseHandler ):
         return self.send_response( data=acl)
 
     def patch(self, id:str):
+        self.canUpdate(self.endpoint())
         acl = db.acl(id=id)
         if acl is None:
             self.send_response_404()
@@ -312,6 +337,8 @@ class AclDetailHandler ( tornado.BaseHandler ):
         return self.send_response_200( )
 
     def delete(self, id:str):
+        self.canDelete(self.endpoint())
+
         try:
             db.acl_delete( id=id )
             return self.send_response_200()
@@ -324,9 +351,11 @@ class AclDetailHandler ( tornado.BaseHandler ):
 
 class AclsListHandler( tornado.BaseHandler):
     def endpoint(self):
-        return "/acls/"
+        return("/admin/acl")
+#       return "/admin/acls/"
 
     def post(self):
+        self.canCreate(self.endpoint())
         values = self.post_values()
         # check and change here
         self.require_arguments(values, ['endpoint'])
@@ -342,6 +371,7 @@ class AclsListHandler( tornado.BaseHandler):
         self.allow_options()
 
     def get(self):
+        self.canRead(self.endpoint())
         filter = self.arguments()
         # check and change here
         self.valid_arguments(filter, ['id', 'endpoint', 'can_create', 'can_read', 'can_update', 'can_delete'])
@@ -351,9 +381,11 @@ class AclsListHandler( tornado.BaseHandler):
 class AclRoleDetailHandler ( tornado.BaseHandler ):
 
     def endpoint(self):
-        return("/acl_role/[id]")
+        return("/admin/acl")
+#        return("/admin/acl_role/[id]")
 
     def get(self, id:str):
+        self.canRead(self.endpoint())
         acl_role  = db.acl_role(id=id)
         if acl_role is None:
             self.send_response_404()
@@ -361,6 +393,7 @@ class AclRoleDetailHandler ( tornado.BaseHandler ):
         return self.send_response( data=acl_role)
 
     def patch(self, id:str):
+        self.canUpdate(self.endpoint())
         acl_role = db.acl_role(id=id)
         if acl_role is None:
             self.send_response_404()
@@ -374,6 +407,7 @@ class AclRoleDetailHandler ( tornado.BaseHandler ):
         return self.send_response_200( )
 
     def delete(self, id:str):
+        self.canDelete(self.endpoint())
         try:
             db.acl_role_delete( id=id )
             return self.send_response_200()
@@ -386,9 +420,11 @@ class AclRoleDetailHandler ( tornado.BaseHandler ):
 
 class AclRolesListHandler( tornado.BaseHandler):
     def endpoint(self):
-        return "/acl_roles/"
+        return("/admin/acl")
+#        return "/admin/acl_roles/"
 
     def post(self):
+        self.canCreate(self.endpoint())
         values = self.post_values()
         print( values)
 
@@ -416,12 +452,14 @@ class AclRolesListHandler( tornado.BaseHandler):
         self.allow_options()
 
     def get(self):
+        self.canRead(self.endpoint())
         filter = self.arguments()
         # check and change here
         self.valid_arguments(filter, ['id', 'acl_id', 'role_id'])
         return self.send_response( db.acl_roles( **filter ))
 
     def delete(self, acl_id:str):
+        self.canDelete(self.endpoint())
         try:
             db.acl_role_delete_by_acl_id( id=acl_id )
             return self.send_response_200()
@@ -430,7 +468,7 @@ class AclRolesListHandler( tornado.BaseHandler):
             return self.send_response_400()
 
 
-def init(db_uri:str, intro_url:str=None, clnt_id:str=None, clnt_secret:str=None) -> list:
+def init(db_uri:str, intro_url:str=None, clnt_id:str=None, clnt_secret:str=None, development:bool=False) -> list:
 
     global db, introspection_url, client_id, client_secret
     db = auth_db.DB()
@@ -459,7 +497,7 @@ def init(db_uri:str, intro_url:str=None, clnt_id:str=None, clnt_secret:str=None)
 
             ]# + oauth.init( **config.oauth )
 
-
-#    tornado.development()
+    if development:
+        tornado.development()
 
     return urls
