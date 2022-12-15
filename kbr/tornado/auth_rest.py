@@ -18,11 +18,11 @@ client_id = None
 client_secret = None
 
 def introspection(token:str) -> dict:
-    print( f"TOKEN:: '{token}'" )
+#    print( f"TOKEN:: '{token}'" )
     url = f"{introspection_url}/{token}/"
-    print(url)
+#    print(url)
     response = requests.post(url, json={"client_id": client_id, "client_secret": client_secret})
-    print(response.json())
+#    print(response.json())
     return response.json()
 
 def user_profile(user_id) -> dict:
@@ -46,16 +46,16 @@ class UserHandler( tornado.BaseHandler ):
 #        print('getting user')
         # access control is done by the access token in this case!
         access_token = self.access_token()
-        print( access_token)
+#        print( access_token)
         token_data = introspection( access_token )
-        print( token_data )
+#        print( token_data )
         if 'active' not in token_data or token_data['active'] is not True:
             self.send_response_401( data="Token not active" )
 
         user_id = token_data[ 'data' ]['user_id']
 
         user_info = db.user_profiles( idp_user_id=user_id )
-        print(user_info)
+#        print(user_info)
         if user_info is None or user_info == []:
             self.send_response_404()
         user_info = user_info[0]
@@ -66,7 +66,7 @@ class UserHandler( tornado.BaseHandler ):
 
 
     def options(self):
-        print('me! options')
+#        print('me! options')
         self.allow_options()
 
 
@@ -191,10 +191,10 @@ class UserRolesListHandler( tornado.BaseHandler):
     def post(self):
         self.canCreate(self.endpoint())
         values = self.post_values()
-        print( values)
+#        print( values)
 
         if not isinstance(values, list):
-            print('Not a list?')
+#            print('Not a list?')
             self.send_response_400()
 
         for value in values:
@@ -426,10 +426,10 @@ class AclRolesListHandler( tornado.BaseHandler):
     def post(self):
         self.canCreate(self.endpoint())
         values = self.post_values()
-        print( values)
+#        print( values)
 
         if not isinstance(values, list):
-            print('Not a list?')
+#            print('Not a list?')
             self.send_response_400()
 
         for value in values:
