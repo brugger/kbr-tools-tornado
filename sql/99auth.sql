@@ -8,7 +8,8 @@ CREATE TABLE IF NOT EXISTS user_profile (
    username varchar( 200 ),
    superuser boolean NOT NULL default False,
    create_date timestamp default now(),
-   last_login timestamp
+   last_login timestamp,
+   active boolean DEFAULT False
 );
 
 CREATE TABLE IF NOT EXISTS acl (

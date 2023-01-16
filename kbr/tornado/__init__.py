@@ -44,7 +44,7 @@ class UUIDEncoder(json.JSONEncoder):
 class BaseHandler( RequestHandler ):
 
     def _can(self, endpoint:str, method:str) -> bool:
-        if environment == 'developments':
+        if environment == 'development':
             return True
 
         userprofile = self.userProfile()
