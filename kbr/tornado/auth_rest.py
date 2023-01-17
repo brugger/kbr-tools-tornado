@@ -16,7 +16,8 @@ db = None
 introspection_url = None
 client_id = None
 client_secret = None
-create_new_users = False
+create_new_users   = False
+activate_new_users = False
 
 def introspection(token:str) -> dict:
 #    print( f"TOKEN:: '{token}'" )
@@ -63,7 +64,7 @@ class UserHandler( tornado.BaseHandler ):
                 user = token_data['data']
                 user['idp_user_id'] = user['user_id']
                 del user['user_id']
-                user['active'] = False
+                user['active'] = activate_new_users
                 user['superuser'] = False
                 db.user_profile_create( **user )
                 user_info = db.user_profiles( idp_user_id=user_id )
@@ -479,16 +480,17 @@ class AclRolesListHandler( tornado.BaseHandler):
             return self.send_response_400()
 
 
-def init(db_uri:str, intro_url:str=None, clnt_id:str=None, clnt_secret:str=None, create_new_users_flag:bool=False, development:bool=False) -> list:
+def init(db_uri:str, intro_url:str=None, clnt_id:str=None, clnt_secret:str=None, create_users:bool=False, activate_users:bool=False, development:bool=False) -> list:
 
-    global db, introspection_url, client_id, client_secret, create_new_users
+    global db, introspection_url, client_id, client_secret, create_new_users, activate_new_users
     db = auth_db.DB()
     db.connect(db_uri )
 
     introspection_url = intro_url
     client_id = clnt_id
     client_secret = clnt_secret
-    create_new_users = create_new_users_flag
+    create_new_users = create_users
+    activate_new_users = activate_users
 
     urls = [
             (r'/admin/user-profile/(\w+)/?$',  UserProfileDetailHandler),
