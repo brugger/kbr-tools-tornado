@@ -6,11 +6,21 @@ CREATE TABLE IF NOT EXISTS user_profile (
    idp_user_id UUID NOT NULL,
    email varchar(200),
    username varchar( 200 ),
+   password varchar( 200 ),
    superuser boolean NOT NULL default False,
    create_date timestamp default now(),
    last_login timestamp,
    active boolean DEFAULT False
 );
+
+
+CREATE TABLE IF NOT EXISTS auth_tokens (
+   id  UUID NOT NULL DEFAULT  uuid_generate_v4 () PRIMARY KEY,
+   user_id UUID NOT NULL references user_profile(id),
+   token varchar( 200 ),
+   active boolean NOT NULL DEFAULT FALSE 
+)
+
 
 CREATE TABLE IF NOT EXISTS acl (
     id UUID NOT NULL DEFAULT  uuid_generate_v4 () PRIMARY KEY,
@@ -47,5 +57,5 @@ INSERT INTO acl_role (acl_id, role_id) VALUES
     ( (SELECT id from acl WHERE endpoint='/admin/acl' ), (SELECT id from role WHERE name='admin' ));
 
 
-#INSERT INTO user_profile (idp_user_id, email, username, superuser ) values 
-#('7866cb79debf4345b4a8c7c12de2b7c1',	'kim.brugger@gmail.com',	'Kim Brugger',	'true');
+-- INSERT INTO user_profile (idp_user_id, email, username, superuser ) VALUES 
+-- ('7866cb79debf4345b4a8c7c12de2b7c1',	'kim.brugger@gmail.com', 'Kim Brugger', 'true');

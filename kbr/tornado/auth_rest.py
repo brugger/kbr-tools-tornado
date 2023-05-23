@@ -496,17 +496,20 @@ def init(db_uri:str, intro_url:str=None, clnt_id:str=None, clnt_secret:str=None,
             (r'/admin/user-profile/(\w+)/?$',  UserProfileDetailHandler),
             (r'/admin/user-profiles/?$',       UserProfilesListHandler),    
             (r'/admin/user-role/(\w+)/?$',     UserRoleDetailHandler),
-            (r'/admin/user-roles/(\w+)/?$',     UserRolesListHandler),
+            (r'/admin/user-roles/(\w+)/?$',    UserRolesListHandler),
             (r'/admin/user-roles/?$',          UserRolesListHandler),    
-            (r'/admin/role/(\w+)/?$',         RoleDetailHandler),
-            (r'/admin/roles/?$',              RolesListHandler),    
-            (r'/admin/acl/(\w+)/?$',          AclDetailHandler),
-            (r'/admin/acls/?$',               AclsListHandler),    
+            (r'/admin/role/(\w+)/?$',          RoleDetailHandler),
+            (r'/admin/roles/?$',               RolesListHandler),    
+            (r'/admin/acl/(\w+)/?$',           AclDetailHandler),
+            (r'/admin/acls/?$',                AclsListHandler),    
             (r'/admin/acl-role/(\w+)/?$',      AclRoleDetailHandler),
             (r'/admin/acl-roles/(\w+)/?$',     AclRolesListHandler),
             (r'/admin/acl-roles/?$',           AclRolesListHandler),
 
             (r'/me/?$', UserHandler),
+
+#            (r'/auth/login?$', LoginHandler),
+#            (r'/auth/logout/?$', LogoutHandler),
 
 
             ]# + oauth.init( **config.oauth )
@@ -515,3 +518,5 @@ def init(db_uri:str, intro_url:str=None, clnt_id:str=None, clnt_secret:str=None,
         tornado.development()
 
     return urls
+
+
