@@ -56,7 +56,7 @@ setup(name='kbr.tornado',
 #      data_files=[('../sql/', package_files('sql/'))],
       data_filesed=[('../auth_sql/', ['sql/99auth.sql'])],
 
-      data_files=[('sql/', package_files('sql/'))],
+      data_files=[('sql', package_files('sql'))],
 
       include_package_data=True,
       zip_safe=False)
